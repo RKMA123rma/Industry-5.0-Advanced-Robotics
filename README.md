@@ -143,9 +143,9 @@ These experiments demonstrate the feasibility of **hardware-accelerated robotic 
 ```
 architecture/
     architecture.md
-    Industry 5.0 framework model image - Contains the Industry 5.0  Plan Model for electronics manufacturing Industey Setup
-    Architectural Block Diagram image - Contains the technical SoC architecure required for the Industry 5.0 Setup
-    Implemented Block Diagram File(bdf) Image - Contains the entire block diagram image implemented in Intel Quartus Prime
+    Industry 5.0 framework model image(industryplan.png) - Contains the Industry 5.0  Plan Model for electronics manufacturing Industey Setup
+    Architectural Block Diagram image(BlockDiagram.png) - Contains the technical SoC architecure required for the Industry 5.0 Setup
+    Implemented Block Diagram File(coborarchbdf.jpg) Image - Contains the entire block diagram image implemented in Intel Quartus Prime
 
 hardware/
     Hardware design components
