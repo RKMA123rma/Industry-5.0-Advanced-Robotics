@@ -4,7 +4,7 @@
 **Clock Frequency:** 3.125 MHz  
 **Hardware Description Language:** Verilog  
 **Software Used:** Intel Quartus Prime
-**FPGA Used:** DE0Nano Board
+ **FPGA Used:** DE0Nano Board
   
 
 This document describes the hardware architecture and module organization of the **Industry 5.0 FPGA-based robotic navigation platform** designed for autonomous industrial cobot operations.
