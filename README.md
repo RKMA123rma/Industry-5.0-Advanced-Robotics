@@ -147,11 +147,8 @@ architecture/
     Architectural Block Diagram image(BlockDiagram.png) - Contains the technical SoC architecure required for the Industry 5.0 Setup
     Implemented Block Diagram File(coborarchbdf.jpg) Image - Contains the entire block diagram image implemented in Intel Quartus Prime
 
-hardware/
-    Hardware design components
+hardware and proof of concept/
     FPGA module descriptions
-
-proof_of_concept/
     Robot prototype images
     Experimental setup
     Demonstration materials
