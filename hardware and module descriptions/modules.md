@@ -10,7 +10,6 @@
 This document describes the hardware architecture and module organization of the **Industry 5.0 FPGA-based robotic navigation platform** designed for autonomous industrial cobot operations.
 
 ---
-# FPGA Module Reference — Industrial Cobot Navigation System
 
 ## Table of Contents
 
