@@ -32,6 +32,8 @@ This document describes the hardware architecture and module organization of the
    - [Object Handling](#51-object-handling)
    - [Obstacle Handling](#52-obstacle-handling)
    - [Communication Unit](#53-communication-unit)
+   - [TX Controller for Message Sequencing](#54-tx-unit)
+   - [Clock Domain Crossing (CDC) Handling](#55-cdc-unit)
 6. [System Summary](#system-summary)
 
 ---
@@ -435,10 +437,98 @@ If an obstacle is detected during navigation:
 
 ---
 
-# 5.3 Communication Unit
+## 5.3 Communication Handling and UART Transmission
 
-The system transmits completion messages and task updates back to the **human–cobot center** using UART wireless communication.
+The **Communication Module** enables reliable interaction between the FPGA robot and the **Human–Cobot Center** using UART communication.
 
+It performs two main tasks:
+
+- Receiving command packets through the **UART Receiver**
+- Transmitting completion messages through the **UART Transmitter**
+
+Data transmission operates at:
+
+| Parameter | Value |
+|----------|------|
+| Baud Rate | 11,520 bps |
+| System Clock | 3.125 MHz |
+
+The UART transmitter is controlled by a **four-state FSM**:
+
+| State | Function |
+|------|---------|
+| Idle | Wait for transmission request |
+| Start | Transmit start bit |
+| Data | Send 8-bit message data |
+| Stop | Send stop bit and complete transmission |
+
+After each **pick-and-place operation** performed by the **2-DOF actuator**, a formatted completion message is transmitted to the Human–Cobot Center.
+
+Example transmitted message:
+PSU-P1-Complete-Red#
+
+Where:
+
+- `PSU` → Prototyping Sub Unit  
+- `P1` → Position identifier  
+- `Complete` → Task status  
+- `Red` → Detected object color  
+
+A **green LED indicator** is activated to signal successful message transmission.
+
+---
+
+### UART Transmitter FSM
+
+![UART TX FSM](uart_tx_fsm.png)
+
+*Figure: Finite State Machine of the UART Transmitter.*
+
+---
+
+## 5.4 TX Controller for Message Sequencing
+
+The **TX_Controller** manages the correct ordering of outgoing messages and ensures reliable UART transmission.
+
+Its responsibilities include:
+
+- Monitoring `subunit_done` flags from actuator operations
+- Generating `tx_start` pulses to trigger the UART transmitter
+- Sending characters sequentially
+- Waiting for `tx_done` acknowledgment after each byte transmission
+
+### Message Termination
+
+Each transmitted message ends with the delimiter: "#"
+
+
+This delimiter indicates **end of packet** to the receiver system.
+
+Internal counters and control flags are reset during **global initialization**, ensuring transmission integrity during continuous operation.
+
+---
+
+## 5.5 Clock Domain Crossing (CDC) Handling
+
+Clock Domain Crossing (CDC) occurs because different modules in the system operate at different clock frequencies.
+
+| Module | Clock Frequency |
+|------|------|
+| CPU and Communication Modules | 3.125 MHz |
+| 2-DOF Actuator Control | 50 Hz |
+
+Direct communication between these domains can cause **metastability issues**.
+
+To solve this problem, the CDC module implements a **handshake-based synchronization mechanism**.
+
+### CDC Mechanism Functions
+
+- Safely transfer control signals across clock domains
+- Prevent metastability
+- Maintain correct timing relationships
+- Ensure reliable actuator command execution
+
+This synchronization mechanism guarantees **stable communication between high-speed computation blocks and low-frequency actuator controllers**.
 ---
 
 # System Summary
