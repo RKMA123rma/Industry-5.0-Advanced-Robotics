@@ -149,12 +149,10 @@ architecture/
 
 hardware and proof of concept/
     FPGA module descriptions
-    Robot prototype images
-    Experimental setup
-    Demonstration materials
+    Robot prototype 
 
 results/
-    Supplementary experimental materials
+    results.md 
 ```
 
 ---
