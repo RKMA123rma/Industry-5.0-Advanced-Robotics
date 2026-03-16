@@ -10,7 +10,32 @@
 This document describes the hardware architecture and module organization of the **Industry 5.0 FPGA-based robotic navigation platform** designed for autonomous industrial cobot operations.
 
 ---
+# FPGA Module Reference — Industrial Cobot Navigation System
 
+## Table of Contents
+
+1. [System Architecture and Design Methodology](#1-system-architecture-and-design-methodology)
+2. [Input and Preprocessing Unit](#2-input-and-preprocessing-unit)
+   - [UART Receiver and Message Decoder](#21-uart-receiver-and-message-decoder)
+   - [Color Sensor Controller](#22-color-sensor-controller)
+   - [ADC Controller](#23-adc-controller)
+3. [Processing Unit](#3-processing-unit)
+   - [RISC-V CPU Architecture](#31-risc-v-cpu-architecture)
+   - [Shortest Path Loader (BFS Algorithm)](#32-shortest-path-loader-bfs-algorithm)
+   - [Reset Module](#33-reset-module)
+4. [Post Processing Unit](#4-post-processing-unit)
+   - [CPU Path Arbitrator](#41-cpu-path-arbitrator)
+   - [Turn and Node Controller](#42-turn-and-node-controller)
+   - [Industry Turns Graph](#43-industry-turns-graph)
+   - [LFA Controller](#44-lfa-controller)
+   - [PWM Motor Controller](#45-pwm-motor-controller)
+5. [Object Handling and Communication Unit](#5-object-handling-and-communication-unit)
+   - [Object Handling](#51-object-handling)
+   - [Obstacle Handling](#52-obstacle-handling)
+   - [Communication Unit](#53-communication-unit)
+6. [System Summary](#system-summary)
+
+---
 # 1. System Architecture and Design Methodology
 
 The proposed **Industry 5.0 robotic platform** integrates FPGA-based control with mechanical and sensor components to enable autonomous navigation and object manipulation within an industrial workspace.
