@@ -81,7 +81,7 @@ Multiple sensors provide environmental awareness.
 |------|------|
 | Line Following Array (LFA) | Path tracking |
 | Infrared (IR) sensor | Object detection |
-| Ultrasonic sensor | Obstacle detection |
+| IR sensor | Obstacle detection |
 | Color sensor (TCS3200) | Object color identification |
 
 These sensors enable the robot to operate autonomously in a structured industrial environment.
