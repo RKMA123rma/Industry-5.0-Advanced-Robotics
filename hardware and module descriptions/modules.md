@@ -469,6 +469,7 @@ Each generator runs a free-running counter against a programmable compare regist
 ## 4. Object Handling & Communication Unit
 
 Manages detection and manipulation of objects and obstacles along the industrial path, and handles all UART-based communication back to the Human–Cobot Center.
+![Object-Obstacle Handling](hardware and module descriptions/obstflow.png)
 
 ---
 
