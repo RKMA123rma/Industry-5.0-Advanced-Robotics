@@ -195,7 +195,7 @@ After both `rx_done` and processing completion are asserted, this module generat
 
 ---
 
-## 2. Color Sensor Controller
+## 1.7 Color Sensor Controller
 
 **Module ID:** `color_sensor_ctrl`
 
@@ -225,7 +225,7 @@ The controller cycles through three FSM states — **F_RED → F_GREEN → F_BLU
 
 ---
 
-## 3. ADC Controller
+## 1.8 ADC Controller
 
 **Module ID:** `adc_ctrl`
 
@@ -249,13 +249,13 @@ The controller sequentially samples each LFA channel by issuing multiplexer sele
 
 ---
 
-## 4. Processing Unit
+## 2. Processing Unit
 
 The Processing Unit is built around a **single-cycle RV32I RISC-V CPU** running at 3.125 MHz. It receives navigation inputs — start node, end node, and path type — from the CPU Input Arbitrator, executes the BFS algorithm, and stores the computed path in data memory for the Post-Processing Unit.
 
 ---
 
-### 4.1 RISC-V CPU Core (RV32I)
+### 2.1 RISC-V CPU Core (RV32I)
 
 **Module ID:** `riscv_cpu`
 
@@ -284,7 +284,7 @@ A **single-cycle RV32I** processor running at **3.125 MHz**, maintaining uniform
 
 ---
 
-### 4.2 Shortest Path Loader (BFS)
+### 2.2 Shortest Path Loader (BFS)
 
 **Module ID:** `bfs_path_loader`  
 *(Compiled to RV32I machine code and stored in instruction memory)*
@@ -312,7 +312,7 @@ Implements the **Breadth-First Search (BFS)** algorithm to determine the most ef
 
 ---
 
-### 4.3 Reset Module
+### 2.3 Reset Module
 
 **Module ID:** `cpu_reset_mod`
 
@@ -329,13 +329,13 @@ After the shortest path has been extracted and written to data memory, this modu
 
 ---
 
-## 5. Post-Processing Unit
+## 3. Post-Processing Unit
 
 After the CPU computes and stores the optimal path in data memory, the Post-Processing Unit interprets the path values and generates corresponding control signals for robotic actuation. It acts as the hardware interface between the CPU's path-planning logic and the motion-control subsystem.
 
 ---
 
-### 5.1 CPU-Path & Turns Arbitrator
+### 3.1 CPU-Path & Turns Arbitrator
 
 **Module ID:** `cpu_path_arb`
 
@@ -356,7 +356,7 @@ Interfaces with CPU data memory to sequentially latch path nodes into a local re
 
 ---
 
-### 5.2 Turn & Node Controller
+### 3.2 Turn & Node Controller
 
 **Module ID:** `turn_node_ctrl`
 
@@ -387,7 +387,7 @@ Synchronizes with the CPU-Path Arbitrator via a handshake mechanism that samples
 
 ---
 
-### 5.3 Industry Turns Graph
+### 3.3 Industry Turns Graph
 
 **Module ID:** `turns_graph_lut`  
 *(Combinational lookup table)*
@@ -408,7 +408,7 @@ Encodes the complete industrial floor intersection topology. For each unique nod
 
 ---
 
-### 5.4 LFA Controller
+### 3.4 LFA Controller
 
 **Module ID:** `lfa_ctrl`
 
@@ -444,7 +444,7 @@ Maps each of the 8 possible LCR sensor patterns to a motion action using a prede
 
 ---
 
-### 5.5 PWM Generators & Motor Drivers
+### 3.5 PWM Generators & Motor Drivers
 
 **Module ID:** `pwm_motor_ctrl`
 
@@ -466,13 +466,13 @@ Each generator runs a free-running counter against a programmable compare regist
 
 ---
 
-## 6. Object Handling & Communication Unit
+## 4. Object Handling & Communication Unit
 
 Manages detection and manipulation of objects and obstacles along the industrial path, and handles all UART-based communication back to the Human–Cobot Center.
 
 ---
 
-### 6.1 Object Handling
+### 4.1 Object Handling
 
 **Module ID:** `obj_handler`
 
@@ -510,7 +510,7 @@ IR detects object + LFA = 1-1-1
 
 ---
 
-### 6.2 Obstacle Handling
+### 4.2 Obstacle Handling
 
 **Module ID:** `obs_handler`
 
@@ -542,7 +542,7 @@ The `ob_flag` is asserted throughout the clearance sequence to suppress normal L
 
 ---
 
-### 6.3 Communication Handling & UART Transmission
+### 4.3 Communication Handling & UART Transmission
 
 **Module ID:** `uart_tx`
 
@@ -573,7 +573,7 @@ After each pick-place completion by the 2-DOF actuator, a formatted status messa
 
 ---
 
-### 6.4 TX Controller for Message Sequencing
+### 4.4 TX Controller for Message Sequencing
 
 **Module ID:** `tx_ctrl`
 
@@ -594,7 +594,7 @@ Holds the full outgoing message string in a local register array. Steps through 
 
 ---
 
-### 6.5 Clock Domain Crossing (CDC) Handler
+### 4.5 Clock Domain Crossing (CDC) Handler
 
 **Module ID:** `cdc_handler`
 
@@ -630,4 +630,4 @@ Implements a two-stage flip-flop synchronizer combined with a request/acknowledg
 
 ---
 
-*Reference: Digital Design and Computer Architecture — David & Sarah Harris (CPU architecture). BFS algorithm — standard queue-based traversal.*
+**All the modules can be updated based on the industrial scenario and can be scaled based on the requirements**
