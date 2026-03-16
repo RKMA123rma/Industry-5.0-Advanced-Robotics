@@ -1,0 +1,426 @@
+
+<style>
+  :root { --accent: #185FA5; --accent-light: #E6F1FB; --accent-mid: #378ADD; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body, .root { font-family: var(--font-sans, sans-serif); }
+  .root { padding: 1rem 0; }
+  .top-bar { display: flex; align-items: center; gap: 12px; margin-bottom: 1.5rem; flex-wrap: wrap; }
+  .sys-title { font-size: 15px; font-weight: 500; color: var(--color-text-primary); }
+  .sys-sub { font-size: 12px; color: var(--color-text-secondary); }
+  .filter-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 1.5rem; }
+  .chip { font-size: 12px; padding: 4px 12px; border-radius: 20px; border: 0.5px solid var(--color-border-secondary); background: var(--color-background-secondary); color: var(--color-text-secondary); cursor: pointer; transition: all .15s; white-space: nowrap; }
+  .chip.active { background: var(--accent-light); color: var(--accent); border-color: var(--accent-mid); font-weight: 500; }
+  .section { margin-bottom: 2rem; }
+  .section-header { display: flex; align-items: center; gap: 10px; margin-bottom: 0.75rem; padding-bottom: 6px; border-bottom: 0.5px solid var(--color-border-tertiary); }
+  .section-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+  .section-label { font-size: 13px; font-weight: 500; color: var(--color-text-secondary); letter-spacing: .04em; text-transform: uppercase; }
+  .section-count { font-size: 12px; color: var(--color-text-tertiary); margin-left: auto; }
+  .modules-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 10px; }
+  .mod-card { background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg, 12px); padding: 14px 16px; cursor: pointer; transition: border-color .15s; }
+  .mod-card:hover { border-color: var(--color-border-secondary); }
+  .mod-card.expanded { border-color: var(--color-border-primary); }
+  .mod-top { display: flex; align-items: flex-start; gap: 10px; }
+  .mod-icon { width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 14px; }
+  .mod-head { flex: 1; min-width: 0; }
+  .mod-name { font-size: 14px; font-weight: 500; color: var(--color-text-primary); }
+  .mod-id { font-size: 11px; color: var(--color-text-tertiary); font-family: var(--font-mono, monospace); margin-top: 1px; }
+  .mod-brief { font-size: 13px; color: var(--color-text-secondary); margin-top: 8px; line-height: 1.55; }
+  .expand-arrow { font-size: 11px; color: var(--color-text-tertiary); transition: transform .2s; flex-shrink: 0; margin-top: 3px; }
+  .mod-card.expanded .expand-arrow { transform: rotate(180deg); }
+  .mod-detail { margin-top: 12px; padding-top: 12px; border-top: 0.5px solid var(--color-border-tertiary); display: none; }
+  .mod-card.expanded .mod-detail { display: block; }
+  .detail-section { margin-bottom: 10px; }
+  .detail-label { font-size: 11px; font-weight: 500; color: var(--color-text-tertiary); text-transform: uppercase; letter-spacing: .05em; margin-bottom: 4px; }
+  .detail-text { font-size: 13px; color: var(--color-text-secondary); line-height: 1.6; }
+  .tags { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 8px; }
+  .tag { font-size: 11px; padding: 2px 8px; border-radius: 4px; font-family: var(--font-mono, monospace); }
+  .tag-fsm { background: #EAF3DE; color: #3B6D11; }
+  .tag-uart { background: #E6F1FB; color: #185FA5; }
+  .tag-cpu { background: #EEEDFE; color: #534AB7; }
+  .tag-bfs { background: #FAF0E0; color: #854F0B; }
+  .tag-pwm { background: #E1F5EE; color: #0F6E56; }
+  .tag-adc { background: #FAECE7; color: #993C1D; }
+  .tag-cdc { background: #FBEAF0; color: #993556; }
+  .tag-servo { background: #FCF0F0; color: #A32D2D; }
+  @media (prefers-color-scheme: dark) {
+    .tag-fsm { background: #173404; color: #C0DD97; }
+    .tag-uart { background: #042C53; color: #B5D4F4; }
+    .tag-cpu { background: #26215C; color: #AFA9EC; }
+    .tag-bfs { background: #412402; color: #FAC775; }
+    .tag-pwm { background: #04342C; color: #9FE1CB; }
+    .tag-adc { background: #4A1B0C; color: #F0997B; }
+    .tag-cdc { background: #4B1528; color: #ED93B1; }
+    .tag-servo { background: #501313; color: #F09595; }
+    .chip.active { background: #042C53; color: #B5D4F4; border-color: #378ADD; }
+  }
+  .hidden { display: none !important; }
+</style>
+
+<div class="root">
+  <div class="top-bar">
+    <div>
+      <div class="sys-title">FPGA Industrial Cobot Navigation System</div>
+      <div class="sys-sub">RV32I · 3.125 MHz · Verilog/VHDL Module Reference</div>
+    </div>
+  </div>
+
+  <div class="filter-row" id="filters">
+    <div class="chip active" onclick="filterModules('all', this)">All modules</div>
+    <div class="chip" onclick="filterModules('comm', this)">Communication</div>
+    <div class="chip" onclick="filterModules('proc', this)">Processing</div>
+    <div class="chip" onclick="filterModules('postproc', this)">Post-processing</div>
+    <div class="chip" onclick="filterModules('obj', this)">Object handling</div>
+  </div>
+
+  <div id="module-list"></div>
+</div>
+
+<script>
+const modules = [
+  {
+    id: "UART_RX",
+    name: "UART Receiver",
+    group: "comm",
+    groupLabel: "Communication & Sensing Unit",
+    groupColor: "#185FA5",
+    icon: "↓",
+    iconBg: "#E6F1FB",
+    brief: "Deserializes incoming serial data at 11,520 bps. Implements a 4-state FSM (Idle → Start → Data → Parity) with an oversampling counter for noise-robust bit detection.",
+    function: "Receives 8-bit UART packets from the Human–Cobot Center. Detects the start bit (rx=0), samples each data bit at mid-period using an internal counter, optionally validates parity, and outputs a complete 8-bit message byte on completion.",
+    interface: "rx (serial in), clk, rst → data_out[7:0], rx_done",
+    tags: ["FSM", "UART", "11520bps", "oversampling"]
+  },
+  {
+    id: "MSG_DECODER",
+    name: "Message Decoder & Task Identifier",
+    group: "comm",
+    groupLabel: "Communication & Sensing Unit",
+    groupColor: "#185FA5",
+    icon: "⊞",
+    iconBg: "#E6F1FB",
+    brief: "Parses the predefined command syntax (e.g. SCT-PU1-UID01-SN03-EN07#) and extracts task type, unit ID, start node, and end node fields.",
+    function: "Interprets 8-bit decoded bytes against a fixed command grammar. Supports Scanning (SCT), Fabrication (FU), Waste (WU), Storage (SU), and Emergency (EMG) task types. Extracted parameters — UID, SN, EN — are written to CPU data memory via the Input Arbitrator.",
+    interface: "data_byte[7:0], clk → task_type[2:0], uid[7:0], sn[4:0], en[4:0], valid_flag",
+    tags: ["parser", "FSM", "task-id"]
+  },
+  {
+    id: "EMG_HANDLER",
+    name: "Emergency Task Handler",
+    group: "comm",
+    groupLabel: "Communication & Sensing Unit",
+    groupColor: "#185FA5",
+    icon: "!",
+    iconBg: "#FCEBEB",
+    brief: "Detects EMG-prefixed commands and immediately elevates them to highest priority, preempting ongoing navigation tasks. Activates the red LED signaling array.",
+    function: "Monitors the decoded task_type output for the EMG header. On detection, it asserts an interrupt signal to the CPU Input Arbitrator, which suspends current task state and enqueues the emergency endpoint pair (SN/EN) for rapid BFS path computation.",
+    interface: "task_type[2:0], valid_flag → emg_irq, led_red",
+    tags: ["FSM", "interrupt", "priority"]
+  },
+  {
+    id: "CPU_ARB",
+    name: "CPU Input Arbitrator",
+    group: "comm",
+    groupLabel: "Communication & Sensing Unit",
+    groupColor: "#185FA5",
+    icon: "≡",
+    iconBg: "#E6F1FB",
+    brief: "Hierarchical FSM that validates and arbitrates between Scanning, Aiding, and Emergency task requests, writing start/end node pairs to CPU data memory.",
+    function: "Accepts decoded parameters from the Message Decoder. Implements a 3-tier priority scheme: Emergency > Aiding > Scanning. Validated (UID, SN, EN) triplets are memory-mapped to fixed addresses in the CPU's data memory for deterministic BFS access.",
+    interface: "uid, sn, en, emg_irq, clk → mem_wr_en, mem_addr[5:0], mem_data[31:0]",
+    tags: ["FSM", "arbitration", "memory-map"]
+  },
+  {
+    id: "SYNC_RST",
+    name: "Synchronization & Reset Controller",
+    group: "comm",
+    groupLabel: "Communication & Sensing Unit",
+    groupColor: "#185FA5",
+    icon: "↺",
+    iconBg: "#E1F5EE",
+    brief: "Clears all transaction flags and counters after each complete message cycle, preventing false triggers in continuous multi-task environments.",
+    function: "Asserts a synchronous internal reset pulse after rx_done and processing completion. Resets UART state machines, decoder buffers, and arbitrator flags. Ensures clean state separation between consecutive command transactions.",
+    interface: "rx_done, proc_done, clk → global_rst_pulse",
+    tags: ["reset", "sync"]
+  },
+  {
+    id: "COLOR_CTRL",
+    name: "Color Sensor Controller",
+    group: "comm",
+    groupLabel: "Communication & Sensing Unit",
+    groupColor: "#185FA5",
+    icon: "◉",
+    iconBg: "#EAF3DE",
+    brief: "Drives the TCS3200 sensor through F_RED → F_GREEN → F_BLUE FSM states, measuring frequency-based output counts for each channel to classify the dominant color.",
+    function: "Cycles through three measurement states maintaining counters C1 (red), C2 (green), C3 (blue). The channel with the highest counter value is declared dominant. A 2-bit color code and start signal are asserted and forwarded to the Human–Cobot coordination unit.",
+    interface: "sensor_freq (in), clk → color_code[1:0], color_valid",
+    tags: ["FSM", "TCS3200", "frequency"]
+  },
+  {
+    id: "ADC_CTRL",
+    name: "ADC Controller",
+    group: "comm",
+    groupLabel: "Communication & Sensing Unit",
+    groupColor: "#185FA5",
+    icon: "~",
+    iconBg: "#FAECE7",
+    brief: "Sequentially samples the Left, Center, and Right Line Following Array (LFA) sensor channels and digitizes each analog value via the ADC interface.",
+    function: "Issues multiplexer select and conversion start signals to the ADC. Captures converted digital values and maps them to three named channels (LFA_L, LFA_C, LFA_R) used by the Line Following Algorithm for trajectory control and node detection.",
+    interface: "adc_data[7:0], adc_eoc, clk → lfa_l, lfa_c, lfa_r",
+    tags: ["ADC", "LFA", "sequential"]
+  },
+  {
+    id: "RISCV_CPU",
+    name: "RISC-V CPU Core (RV32I)",
+    group: "proc",
+    groupLabel: "Processing Unit",
+    groupColor: "#534AB7",
+    icon: "⬡",
+    iconBg: "#EEEDFE",
+    brief: "Single-cycle RV32I processor running at 3.125 MHz. Executes the compiled BFS navigation program from a 512-word instruction memory.",
+    function: "Comprises instruction memory (512 × 32-bit words), data memory (64 × 32-bit words), register file, ALU, controller/main decoder, and immediate extension unit. Receives SN/EN from the Input Arbitrator, executes the BFS program, and writes the computed path to data memory.",
+    interface: "mem_addr, mem_data (external write), clk, rst → computed path in data memory",
+    tags: ["RV32I", "single-cycle", "3.125MHz", "BFS"]
+  },
+  {
+    id: "BFS_LOADER",
+    name: "Shortest Path Loader (BFS)",
+    group: "proc",
+    groupLabel: "Processing Unit",
+    groupColor: "#534AB7",
+    icon: "⊕",
+    iconBg: "#EEEDFE",
+    brief: "Breadth-First Search algorithm compiled to RV32I machine code. Traverses the industrial node graph to find the minimal-hop path between start and end nodes.",
+    function: "Initializes the start node, enqueues connected neighbors, and iteratively explores the queue while maintaining a parent[] array. Once the end node is reached, the path is reconstructed from parent[] and stored sequentially in data memory for the Post-Processing Unit.",
+    interface: "Runs on CPU — inputs: start_node, end_node from data memory → path_array[] in data memory",
+    tags: ["BFS", "graph", "path-planning"]
+  },
+  {
+    id: "RESET_MOD",
+    name: "CPU Reset Module",
+    group: "proc",
+    groupLabel: "Processing Unit",
+    groupColor: "#534AB7",
+    icon: "⊘",
+    iconBg: "#EEEDFE",
+    brief: "Clears BFS temporary registers, counters, and memory-mapped variables after path extraction to ready the CPU for the next navigation command.",
+    function: "After the CPU writes the final path to data memory, this module asserts reset signals to clear the queue array, visited array, and parent array in data memory. Also resets the BFS program counter context, ensuring no residual graph state affects subsequent path computations.",
+    interface: "path_done → bfs_mem_clear, cpu_soft_rst",
+    tags: ["reset", "BFS", "memory"]
+  },
+  {
+    id: "PATH_ARB",
+    name: "CPU-Path & Turns Arbitrator",
+    group: "postproc",
+    groupLabel: "Post-Processing Unit",
+    groupColor: "#0F6E56",
+    icon: "→",
+    iconBg: "#E1F5EE",
+    brief: "Reads the BFS-computed path from CPU data memory into an internal buffer, tracks node progression with an index counter, and asserts a completion flag when all nodes are loaded.",
+    function: "Interfaces with CPU data memory to sequentially latch path nodes into a local register array. Manages end-of-path detection, obstacle events, and unit-specific triggers. Signals the Turn Controller via a completion flag and handshake to begin navigation.",
+    interface: "cpu_mem_data, clk → path_buf[], node_idx, path_done_flag",
+    tags: ["path-buffer", "handshake", "FSM"]
+  },
+  {
+    id: "TURN_CTRL",
+    name: "Turn & Node Controller",
+    group: "postproc",
+    groupLabel: "Post-Processing Unit",
+    groupColor: "#0F6E56",
+    icon: "↝",
+    iconBg: "#E1F5EE",
+    brief: "Processes node triplets (previous, current, next) against the Industry Turns Graph to output deterministic turn commands: straight, left, right, U-turn, or reverse.",
+    function: "Samples path_buf triplets through a handshake with the Path Arbitrator into internal registers. Performs a lookup into the Industry Turns Graph combinational table. Outputs a 3-bit direction code and acknowledges completion to support conditional runtime path reconfiguration.",
+    interface: "path_buf[], ack_in, clk → dir_cmd[2:0], ack_out",
+    tags: ["turns-graph", "triplet", "handshake"]
+  },
+  {
+    id: "TURNS_GRAPH",
+    name: "Industry Turns Graph (LUT)",
+    group: "postproc",
+    groupLabel: "Post-Processing Unit",
+    groupColor: "#0F6E56",
+    icon: "⊞",
+    iconBg: "#E1F5EE",
+    brief: "Predefined combinational lookup table mapping all (prev, curr, next) node triplets to required maneuver directions with zero runtime computational overhead.",
+    function: "Encodes the full industrial floor graph intersection topology. For each unique triplet of nodes, returns the direction code (000=straight, 001=left, 010=right, 011=U-turn, 100=reverse). Handles exceptional maneuvers for loops and obstructions.",
+    interface: "prev_node, curr_node, next_node → dir_cmd[2:0] (combinational)",
+    tags: ["LUT", "combinational", "graph"]
+  },
+  {
+    id: "LFA_CTRL",
+    name: "LFA Controller",
+    group: "postproc",
+    groupLabel: "Post-Processing Unit",
+    groupColor: "#0F6E56",
+    icon: "⟶",
+    iconBg: "#E1F5EE",
+    brief: "Digitizes L–C–R sensor values via the ADC Controller and applies proportional PWM corrections to maintain track alignment through straight segments, curves, and node intersections.",
+    function: "Maps 8 possible LCR sensor patterns to motion actions (straight, left correction, right correction, stop/U-turn at node 1-1-1). Governs initial alignment, overshoot recovery, and deterministic node-stop behavior. No PID — uses proportional PWM differential.",
+    interface: "lfa_l, lfa_c, lfa_r → pwm_left_duty, pwm_right_duty, node_detect",
+    tags: ["LFA", "PWM", "line-follow"]
+  },
+  {
+    id: "PWM_GEN",
+    name: "PWM Generators & Motor Drivers",
+    group: "postproc",
+    groupLabel: "Post-Processing Unit",
+    groupColor: "#0F6E56",
+    icon: "⊓",
+    iconBg: "#E1F5EE",
+    brief: "Dual independent PWM generators control the left and right motor pairs via L298N drivers, enabling differential steering through asymmetric duty cycles.",
+    function: "Each generator runs a free-running counter against a programmable compare register. Asymmetric left/right duty cycles produce differential wheel speeds for smooth directional transitions. Direction bits are also forwarded to L298N IN1–IN4 for bidirectional actuation.",
+    interface: "pwm_left_duty[7:0], pwm_right_duty[7:0], dir_l, dir_r, clk → PWM_L, PWM_R, IN1–IN4",
+    tags: ["PWM", "L298N", "motor"]
+  },
+  {
+    id: "OBJ_HANDLE",
+    name: "Object Handling Module",
+    group: "obj",
+    groupLabel: "Object Handling & Communication Unit",
+    groupColor: "#993C1D",
+    icon: "⊡",
+    iconBg: "#FAECE7",
+    brief: "Triggers a synchronized 2-DOF pick-and-place routine when the IR sensor detects an object at a node (LFA = 1-1-1). Servo 1 grips/releases; Servo 2 manages vertical lift.",
+    function: "On node detection with IR confirmation, sequences servo PWM commands: S1 to grip angle → S2 to lift angle → (navigate) → S2 to lower → S1 to release. Sends a completion feedback flag to the CPU before resuming navigation.",
+    interface: "ir_detect, node_detect → s1_pwm_duty, s2_pwm_duty, obj_done_flag",
+    tags: ["servo", "pick-place", "PWM", "2-DOF"]
+  },
+  {
+    id: "OBS_HANDLE",
+    name: "Obstacle Handling Module",
+    group: "obj",
+    groupLabel: "Object Handling & Communication Unit",
+    groupColor: "#993C1D",
+    icon: "⊠",
+    iconBg: "#FAECE7",
+    brief: "Detects obstacles when LFA ≠ 1-1-1 and executes a 5-state clearance FSM: Pick → Lift → Move → Place → Return.",
+    function: "Classifies mid-path IR detections as obstructions. The FSM sequences: S1 grip → S2 lift → robot rotates toward open space → S2 lower → S1 release → robot returns to planned route. ob_flag is asserted throughout to suppress normal LFA navigation.",
+    interface: "ir_detect, lfa_pattern[2:0] → s1_pwm, s2_pwm, ob_flag, clearance_done",
+    tags: ["FSM", "obstacle", "servo", "5-state"]
+  },
+  {
+    id: "UART_TX",
+    name: "UART Transmitter",
+    group: "obj",
+    groupLabel: "Object Handling & Communication Unit",
+    groupColor: "#993C1D",
+    icon: "↑",
+    iconBg: "#E6F1FB",
+    brief: "4-state TX FSM (Idle → Start → Data → Stop) serializes encoded completion messages (e.g. PSU-P1-Complete-Red#) to the Human–Cobot Center at 11,520 bps.",
+    function: "Accepts a byte from the TX Controller, inserts a start bit, clocks out 8 data bits LSB-first, appends a stop bit. Green LED asserts on successful transmission. Operates at 11,520 bps aligned to the 3.125 MHz system clock.",
+    interface: "tx_byte[7:0], tx_start, clk → tx (serial out), tx_done, led_green",
+    tags: ["UART", "FSM", "11520bps"]
+  },
+  {
+    id: "TX_CTRL",
+    name: "TX Controller (Message Sequencer)",
+    group: "obj",
+    groupLabel: "Object Handling & Communication Unit",
+    groupColor: "#993C1D",
+    icon: "⊟",
+    iconBg: "#FAECE7",
+    brief: "Manages ordered multi-character message transmission by tracking subunit done flags, issuing tx_start pulses, and serializing characters in sync with tx_done.",
+    function: "Holds the full outgoing message string in a local register array. Steps through characters on each tx_done acknowledgment from the UART Transmitter. Appends a '#' terminator to each message. Internal counters and flags reset on global initialization.",
+    interface: "subunit_done_flags, tx_done → tx_byte[7:0], tx_start",
+    tags: ["sequencer", "UART", "message"]
+  },
+  {
+    id: "CDC_MOD",
+    name: "Clock Domain Crossing (CDC) Module",
+    group: "obj",
+    groupLabel: "Object Handling & Communication Unit",
+    groupColor: "#993C1D",
+    icon: "⇌",
+    iconBg: "#FBEAF0",
+    brief: "Safely transfers control signals between the 3.125 MHz computation/communication domain and the 50 Hz servo actuation domain using a handshake-based synchronizer.",
+    function: "Implements a two-stage flip-flop synchronizer and request/acknowledge handshake to eliminate metastability at the domain boundary. Ensures servo command data is stable and correctly sampled before actuation, maintaining timing correctness across both clock domains.",
+    interface: "clk_fast (3.125MHz), clk_slow (50Hz), data_in → data_out_sync, ack",
+    tags: ["CDC", "handshake", "metastability", "50Hz"]
+  }
+];
+
+const groupOrder = [
+  "Communication & Sensing Unit",
+  "Processing Unit",
+  "Post-Processing Unit",
+  "Object Handling & Communication Unit"
+];
+
+let activeFilter = 'all';
+
+function filterModules(group, el) {
+  activeFilter = group;
+  document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+  el.classList.add('active');
+  renderModules();
+}
+
+function toggle(card) {
+  card.classList.toggle('expanded');
+}
+
+function renderModules() {
+  const filtered = activeFilter === 'all' ? modules : modules.filter(m => m.group === activeFilter);
+  const byGroup = {};
+  filtered.forEach(m => {
+    if (!byGroup[m.groupLabel]) byGroup[m.groupLabel] = [];
+    byGroup[m.groupLabel].push(m);
+  });
+
+  const container = document.getElementById('module-list');
+  container.innerHTML = '';
+
+  groupOrder.forEach(gl => {
+    if (!byGroup[gl]) return;
+    const mods = byGroup[gl];
+    const sec = document.createElement('div');
+    sec.className = 'section';
+
+    const color = mods[0].groupColor;
+    sec.innerHTML = `
+      <div class="section-header">
+        <div class="section-dot" style="background:${color}"></div>
+        <span class="section-label">${gl}</span>
+        <span class="section-count">${mods.length} module${mods.length>1?'s':''}</span>
+      </div>
+      <div class="modules-grid" id="grid-${gl.replace(/\s/g,'_')}"></div>
+    `;
+    container.appendChild(sec);
+
+    const grid = sec.querySelector('.modules-grid');
+    mods.forEach(m => {
+      const card = document.createElement('div');
+      card.className = 'mod-card';
+      const tagHtml = m.tags.map(t => {
+        const cls = t === 'FSM' ? 'tag-fsm' : t === 'UART' || t.includes('bps') ? 'tag-uart' : t === 'BFS' || t === 'graph' ? 'tag-bfs' : t === 'RV32I' || t.includes('cycle') || t.includes('MHz') ? 'tag-cpu' : t === 'PWM' || t.includes('motor') || t.includes('L298') ? 'tag-pwm' : t === 'ADC' || t.includes('LFA') ? 'tag-adc' : t === 'CDC' || t.includes('meta') || t.includes('Hz') ? 'tag-cdc' : t.includes('servo') || t.includes('DOF') ? 'tag-servo' : 'tag-fsm';
+        return `<span class="tag ${cls}">${t}</span>`;
+      }).join('');
+      card.innerHTML = `
+        <div class="mod-top" onclick="this.closest('.mod-card').classList.toggle('expanded')">
+          <div class="mod-icon" style="background:${m.iconBg}">${m.icon}</div>
+          <div class="mod-head">
+            <div class="mod-name">${m.name}</div>
+            <div class="mod-id">${m.id}</div>
+          </div>
+          <div class="expand-arrow">▼</div>
+        </div>
+        <div class="mod-brief">${m.brief}</div>
+        <div class="mod-detail">
+          <div class="detail-section">
+            <div class="detail-label">Function</div>
+            <div class="detail-text">${m.function}</div>
+          </div>
+          <div class="detail-section">
+            <div class="detail-label">Port summary</div>
+            <div class="detail-text" style="font-family:var(--font-mono);font-size:12px;line-height:1.7">${m.interface}</div>
+          </div>
+          <div class="tags">${tagHtml}</div>
+        </div>
+      `;
+      grid.appendChild(card);
+    });
+  });
+}
+
+renderModules();
+</script>
