@@ -1,4 +1,4 @@
-# Industry-5.0-Advanced-Robotics
+# Industry-5.0-Robotics
 Supporting materials for the research work titled "FPGA Based Autonomous Cobot for Adaptive Industrial Assistance in Industry 5.0." This repository includes system architecture diagrams ,supplementary materials related to the robotic framework and a small demo video of robot performing pick/place tasks of object/obstacle along with following the black line path provided by the processor running shortest path algorithm .
 # FPGA Based Autonomous Cobot for Adaptive Industrial Assistance in Industry 5.0
 
