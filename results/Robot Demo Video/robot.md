@@ -8,7 +8,7 @@ A short demonstration video of the robot operation is provided below.This is jus
 - Detecting and avoiding **obstacles**
 - Automatically calculating the **shortest navigation path**
 - Executing navigation decisions using a **RISC-V CPU**
-The performance of the robot can be improved based on the requirement and scalability 
+- The performance of the robot can be improved based on the requirement and scalability 
 <video src="robot.mp4" controls width="600"></video>
 
 If the video does not load in the preview, you can download it directly from the repository:
