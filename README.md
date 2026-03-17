@@ -149,9 +149,11 @@ architecture/
 
 hardware and proof of concept/
     FPGA module descriptions
-    Robot prototype 
+    Robot prototype - robot.md
+     
 
 results/
+    Robot Demo video 
     results.md 
 ```
 
