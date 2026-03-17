@@ -30,7 +30,7 @@ The robot follows a predefined **black line track**, which represents an industr
 The robot is capable of **picking and placing objects** at designated points along the path.
 
 ### 3. Obstacle Detection
-Obstacles placed on the path are detected by sensors, and the robot adapts its route accordingly.
+Obstacles placed on the path are detected by sensors, and the robot adapts its route accordingly or remove the obstacle based on the requirement 
 
 ### 4. Shortest Path Computation
 The system computes the **shortest path between nodes** using a graph-based shortest path algorithm executed on a **RISC-V CPU**.
